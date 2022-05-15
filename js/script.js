@@ -1,4 +1,5 @@
 import mostraValorNaTabela from "./mostraValorNaTabela.js"
+import Dado from "./Dado.js"
 
 document.querySelector('#saveToExcel').addEventListener('click', () => {
   let table2excel = new Table2Excel();
@@ -7,32 +8,29 @@ document.querySelector('#saveToExcel').addEventListener('click', () => {
 
 document.querySelector('#pdfs').addEventListener('change', (event) => {
 
-
   // The workerSrc property shall be specified.
   pdfjsLib.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.worker.min.js';
-
   const arquivos = Array.from(event.target.files);
 
   for (let i = 0; i < arquivos.length; i++) {
     const reader = new FileReader();
 
     reader.onload = () => {
-
       const typedArray = new Uint8Array(reader.result);
       const loadingTask = pdfjsLib.getDocument(typedArray);
 
       loadingTask.promise.then((pdf) => {
-
         let pdfDocument = pdf;
         let pagesPromises = [];
 
         for (let i = 0; i < pdf.numPages; i++) {
+
           // Required to prevent that i is always the total of pages
-          (function (pageNumber) {
+          ((pageNumber) => {
             pagesPromises.push(getPageText(pageNumber, pdfDocument));
           })(i + 1);
         }
-      }, function (reason) {
+      }, (reason) => {
 
         // PDF loading error
         console.error(reason);
@@ -43,35 +41,31 @@ document.querySelector('#pdfs').addEventListener('change', (event) => {
   }
 });
 
-class Dado {
-  constructor(index, descricao, valor) {
-    this.index = index;
-    this.descricao = descricao;
-    this.valor = valor;
-  }
-}
-
 /**
  * Retrieves the text of a specif page within a PDF Document obtained through pdf.js
  *
  * @param {Integer} pageNum Specifies the number of the page
  * @param {PDFDocument} PDFDocumentInstance The PDF document obtained
+ *
  **/
-function getPageText(pageNum, PDFDocumentInstance) {
-  // Return a Promise that is solved once the text of the page is retrieven
-  return new Promise(function (resolve, reject) {
-    PDFDocumentInstance.getPage(pageNum).then(function (pdfPage) {
 
+  const getPageText = (pageNum, PDFDocumentInstance) => {
+
+  // Return a Promise that is solved once the text of the page is retrived
+  return new Promise((resolve, reject) => {
+    PDFDocumentInstance.getPage(pageNum).then((pdfPage) => {
       let i;
 
       // The main trick to obtain the text of the PDF page, use the getTextContent method
-      pdfPage.getTextContent().then(function (textContent) {
+      pdfPage.getTextContent().then((textContent) => {
         let textItems = textContent.items;
         let finalString = "";
         let objetoDados = [];
 
         for (i = 0; i < textItems.length; i++) {
           let valor = textItems[i].str;
+
+          console.log(valor);
 
           if (valor == 'DNV:') {
             break;
